@@ -10,11 +10,13 @@ Tasks to do:
 Create function with eval to test only training days (1-150)
 
 Signals to measure/ work on
-	- Momentum
+	- Momentum (Annie)
 	- Deviation from moving average
 	- Volatility (standard deviation)
 	- Market beta???
 	- Deviation from market ???
 	- Correlation ???
+
+Build a market portfolio as the benchmark?
 
 Build analysis tools... 

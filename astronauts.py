@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
-# RENAME THIS FILE WITH YOUR TEAM NAME.
-
 import numpy as np
+from scipy.stats import linregress
 
 nInst=100
 currentPos = np.zeros(nInst)
@@ -43,3 +42,11 @@ def isPositionValid(currentPos, prcSoFar):
         assert stockNumber < 100, "More stocks than expected."
 
     return result
+
+# Calculate the momentum for one stock
+# Code from https://teddykoker.com/2019/05/momentum-strategy-from-stocks-on-the-move-in-python/
+def momentum(closes):
+    returns = np.log(closes)
+    x = np.arange(len(returns))
+    slope, _, rvalue, _, _ = linregress(x, returns)
+    return ((1 + slope) ** 252) * (rvalue ** 2)
