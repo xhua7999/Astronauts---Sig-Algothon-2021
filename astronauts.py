@@ -38,7 +38,7 @@ def applyEdgeModel (prcSoFar, theoPrices, currentPos): # theoPrices is a 100 len
     for i in edgeArray:
         if edgeArray[i] > edgeRequired:
             newPosition[i] = floor(10000/lastPrice[i]) # We buy as much as we allowed! Everything!
-        if edgeArray[i] < -(edgeRequired):
+        if edgeArray[i] < -edgeRequired:
             newPosition[i] = ceil(-10000/lastPrice[i]) # We sell as much as we allowed! Everything!
     return newPosition
 
