@@ -52,5 +52,3 @@ def momentum(prices):
     x = np.arange(len(returns))
     slope, _, rvalue, _, _ = linregress(x, returns)
     return ((1 + slope) ** 252) * (rvalue ** 2)
-
-# Apply the momentum calculation to all the stocks on a rolling basis of a 30day window
