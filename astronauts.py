@@ -6,6 +6,42 @@ from scipy.stats import linregress
 nInst=100
 currentPos = np.zeros(nInst)
 
+# A basic theoretical price function
+def getTheoreticalPrices (prcSoFar):
+    # an array containing the latest prices of each stockie (I DONT KNOW HOW TRY AND EXCEPT WORK!)
+    try:
+        lastPrice = prcSoFar[-1,:]
+        secondLastPrice = prcSoFar[-2,:]
+    except:
+        # Handle Day 1 when prcSoFar is a 1D array
+        lastPrice = prcSoFar
+
+    # The theoretical price is the last price with a basic mean reversion - 0.5 of the way to the 2nd last price
+    theoreticalPrices = lastPrice + (secondLastPrice - lastPrice) * 0.5
+    return theoreticalPrices
+
+
+# Applys the edge model to determine how much we should size up/down for each stockie
+def applyEdgeModel (prcSoFar, theoPrices, currentPos): # theoPrices is a 100 length array with the edge for each
+
+    # an array containing the latest prices of each stockie (I DONT KNOW HOW TRY AND EXCEPT WORK!)
+    try:
+        lastPrice = prcSoFar[-1,:]
+    except:
+        # Handle Day 1 when prcSoFar is a 1D array
+        lastPrice = prcSoFar
+
+    # Our edge is the theoretical price minus the current price expressed as a percentage (positive means buy)
+    edgeArray = (theoPrices - lastPrice)/lastPrice
+    newPosition = currentPos
+    edgeRequired = 0.01 # if we have 1% of edge we will max out long and short based on direction
+    for i in edgeArray:
+        if edgeArray[i] > edgeRequired:
+            newPosition[i] = floor(10000/lastPrice[i]) # We buy as much as we allowed! Everything!
+        if edgeArray[i] < -(edgeRequired):
+            newPosition[i] = ceil(-10000/lastPrice[i]) # We sell as much as we allowed! Everything!
+    return newPosition
+
 # Dummy algorithm to demonstrate function format.
 def getMyPosition (prcSoFar):
     global currentPos
