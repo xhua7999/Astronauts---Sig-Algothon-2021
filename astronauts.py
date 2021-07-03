@@ -15,6 +15,7 @@ def getTheoreticalPrices (prcSoFar):
     except:
         # Handle Day 1 when prcSoFar is a 1D array
         lastPrice = prcSoFar
+        secondLastPrice = prcSoFar
 
     # The theoretical price is the last price with a basic mean reversion - 0.5 of the way to the 2nd last price
     theoreticalPrices = lastPrice + (secondLastPrice - lastPrice) * 0.5
