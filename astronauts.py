@@ -43,10 +43,14 @@ def isPositionValid(currentPos, prcSoFar):
 
     return result
 
-# Calculate the momentum for one stock
+# Calculate the momentum for one stock given the stocks historical data
 # Code from https://teddykoker.com/2019/05/momentum-strategy-from-stocks-on-the-move-in-python/
-def momentum(closes):
-    returns = np.log(closes)
+# Formula of momentum is the annualised exponential regression slope multiplied
+# by the R^2 coefficient of the regression calculation
+def momentum(prices):
+    returns = np.log(prices)
     x = np.arange(len(returns))
     slope, _, rvalue, _, _ = linregress(x, returns)
     return ((1 + slope) ** 252) * (rvalue ** 2)
+
+# Apply the momentum calculation to all the stocks on a rolling basis of a 30day window
