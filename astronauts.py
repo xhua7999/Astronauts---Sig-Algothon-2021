@@ -8,27 +8,31 @@ nInst=100
 currentPos = np.zeros(nInst)
 
 # A basic theoretical price function
-def getTheoreticalPrices (prcSoFar):
+def getTheoreticalPrices(prcSoFar):
     # an array containing the latest prices of each stockie (I DONT KNOW HOW TRY AND EXCEPT WORK!)
     try:
-        lastPrice = prcSoFar[-1,:]
-        secondLastPrice = prcSoFar[-2,:]
+        lastPrice = prcSoFar[:,-1]
+        secondLastPrice = prcSoFar[:,-2]
     except:
         # Handle Day 1 when prcSoFar is a 1D array
         lastPrice = prcSoFar
         secondLastPrice = prcSoFar
-
+    
+    rsi_values = applyRSIModel(prcSoFar)
+    weightfactor = 1/3000  
+    
     # The theoretical price is the last price with a basic mean reversion - 0.5 of the way to the 2nd last price
-    theoreticalPrices = lastPrice + (secondLastPrice - lastPrice) * 0.5
+    theoreticalPrices = lastPrice + (secondLastPrice - lastPrice) * 0.5 \
+    + (50*np.ones(100) - rsi_values) * lastPrice * weightfactor
     return theoreticalPrices
 
 
 # Applys the edge model to determine how much we should size up/down for each stockie
-def applyEdgeModel (prcSoFar, theoPrices, currentPos): # theoPrices is a 100 length array with the edge for each
+def applyEdgeModel(prcSoFar, theoPrices, currentPos): # theoPrices is a 100 length array with the edge for each
 
     # an array containing the latest prices of each stockie (I DONT KNOW HOW TRY AND EXCEPT WORK!)
     try:
-        lastPrice = prcSoFar[-1,:]
+        lastPrice = prcSoFar[:,-1]
     except:
         # Handle Day 1 when prcSoFar is a 1D array
         lastPrice = prcSoFar
@@ -37,49 +41,38 @@ def applyEdgeModel (prcSoFar, theoPrices, currentPos): # theoPrices is a 100 len
     edgeArray = (theoPrices - lastPrice)/lastPrice
     newPosition = currentPos
     edgeRequired = 0.01 # if we have 1% of edge we will max out long and short based on direction
-    for i in edgeArray:
-        if edgeArray[i] > edgeRequired:
+    for i in range(len(edgeArray)):
+        edge = edgeArray[i]
+        if (edge > edgeRequired).any():
             newPosition[i] = math.floor(10000/lastPrice[i]) # We buy as much as we allowed! Everything!
-        if edgeArray[i] < -edgeRequired:
+        if (edge < -edgeRequired).any():
             newPosition[i] = math.ceil(-10000/lastPrice[i]) # We sell as much as we allowed! Everything!
     return newPosition
 
 # Function to change current position based on the results of the RSI Model
 # Calculates the Relative Strength Index and uses the last RSI to determine the current stock position
-def applyRSIModel(prcSoFar, currentPos):
-    newPosition = currentPos
-
-    try:
-        lastPrice = prcSoFar[-1,:]
-    except:
-        # Handle Day 1 when prcSoFar is a 1D array
-        lastPrice = prcSoFar
-
-     # RSI Method
+def applyRSIModel(prcSoFar):
+    
+    # RSI Method
     prcSoFar = pd.DataFrame(prcSoFar).T
     RSI = prcSoFar.copy()
     for i in range(100):
         RSI[i] = computeRSI(prcSoFar[i], 14)
-        RSI_copy = RSI.to_numpy()
-       # print(f'stock #{17} RSI: {RSI_copy[17]}')
-        # Buy the stock as much as possible if RSI = 30
-        if RSI_copy[i][-1] < 20:
-            newPosition[i] = math.floor(10000/lastPrice[i])
-        # Sell if RSI = 70
-        elif RSI_copy[i][-1] > 70:
-            newPosition[i] = math.ceil(-10000/lastPrice[i])
-    
-    assert len(newPosition) == 100, "Position is incorrect"
-    return newPosition
+        RSI_copy = RSI.fillna(0).to_numpy()
+    assert len(RSI_copy[-1]) == 100, "Position is incorrect"
+    return np.transpose(RSI_copy[-1])
 
 # Dummy algorithm to demonstrate function format.
-def getMyPosition (prcSoFar):
+def getMyPosition(prcSoFar):
     global currentPos
     (nins,nt) = prcSoFar.shape
     #rpos = np.array([int(x) for x in 1000 * np.random.randn(nins)])
     #currentPos += rpos
 
-    currentPos = applyRSIModel(prcSoFar, currentPos)
+    #currentPos = applyRSIModel(prcSoFar, currentPos)
+    
+    theoPrices = getTheoreticalPrices(prcSoFar)
+    currentPos = applyEdgeModel(prcSoFar, theoPrices, currentPos)
     # The algorithm must return a vector of integers, indicating the position of each stock.
     # Position = number of shares, and can be positve or negative depending on long/short position.
     return currentPos
@@ -145,4 +138,3 @@ def computeRSI (data, time_window):
     rs = abs(up_chg_avg/down_chg_avg)
     rsi = 100 - 100/(1+rs)
     return rsi
-
