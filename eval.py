@@ -2,7 +2,7 @@
 
 import numpy as np
 import pandas as pd
-from astronauts import getMyPosition as getPosition
+from Astronauts import getMyPosition as getPosition
 
 # Algorithm testing file. 
 # Quantitative judging will be determined from output of this program.
@@ -38,7 +38,7 @@ def calcPL(prcHist):
     value = 0
     todayPLL = []
     (_,nt) = prcHist.shape
-    for t in range(1,250):
+    for t in range(201,251):
         prcHistSoFar = prcHist[:,:t]
         newPosOrig = getPosition(prcHistSoFar)
         curPrices = prcHistSoFar[:,-1] 
@@ -64,7 +64,7 @@ def calcPL(prcHist):
             ret = value / totDVolume
             frac0 = totDVolume0 / totDVolume
             frac1 = totDVolume1 / totDVolume
-        print ("Day %d value: %.2lf todayPL: $%.2lf $-traded: %.0lf return: %.5lf frac0: %.4lf frac1: %.4lf" % (t,value, todayPL, totDVolume, ret, frac0, frac1))
+        # print ("Day %d value: %.2lf todayPL: $%.2lf $-traded: %.0lf return: %.5lf frac0: %.4lf frac1: %.4lf" % (t,value, todayPL, totDVolume, ret, frac0, frac1))
     pll = np.array(todayPLL)
     (plmu,plstd) = (np.mean(pll), np.std(pll))
     annSharpe = 0.0
@@ -72,13 +72,14 @@ def calcPL(prcHist):
         annSharpe = 16 * plmu / plstd
     return (plmu, ret, annSharpe, totDVolume)
 
-# Output.
-(meanpl, ret, sharpe, dvol) = calcPL(prcAll)
-print ("=====")
-print ("mean(PL): %.0lf" % meanpl)
-print ("return: %.5lf" % ret)
-print ("annSharpe(PL): %.2lf " % sharpe)
-print ("totDvolume: %.0lf " % dvol)
+if __name__ == '__main__':
+    # Output.
+    (meanpl, ret, sharpe, dvol) = calcPL(prcAll)
+    print ("=====")
+    print ("mean(PL): %.0lf" % meanpl)
+    print ("return: %.5lf" % ret)
+    print ("annSharpe(PL): %.2lf " % sharpe)
+    print ("totDvolume: %.0lf " % dvol)
 
 
 
