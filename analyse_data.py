@@ -5,7 +5,7 @@ import scipy
 from scipy.ndimage import gaussian_filter1d
 import random
 
-df = pd.read_csv('prices250.txt', sep='     ', header=None)
+df = pd.read_csv('prices500.txt', sep='     ', header=None)
 print(df)
 
 NUM_DAYS = df.shape[0]
@@ -76,7 +76,15 @@ def filter_stocks(df, keep_function=None, index_set=None):
     return df.drop(drop_columns, axis=1)
 
 
-index_set = {1, 2, 3, 4, 5}
+
+# def plot_price_changes()
+
+# index_set = {46, 61}
+# index_set=None
+
+index_set = set()
+for i in range(50):
+    index_set.add(i)
 
 # percent_df = filter_stocks(percent_df, keep_function=(lambda arr: random.randint(1,30) == 1), index_set=index_set)
 
@@ -84,11 +92,22 @@ percent_df = filter_stocks(percent_df, keep_function=None, index_set=index_set)
 
 plot_df(percent_df)
 
-filtered_percent_df = gaussian_filter(percent_df, 10)
-plot_df(filtered_percent_df)
+gaussian_percent_df = gaussian_filter(percent_df, 10)
+plot_df(gaussian_percent_df)
 
 price_change_df = get_price_change(percent_df)
 plot_df(price_change_df)
+
+
+
+
+def plot_price_change(price_change_df):
+    stock_names = [str(i) for i in range(100)]
+    price_change_means = price_change_df.abs().mean(axis=0)
+    plt.bar(stock_names, price_change_means)
+    plt.show()
+
+# plot_price_change(price_change_df)
 
 # means = get_mean_price(price_change_df)
 

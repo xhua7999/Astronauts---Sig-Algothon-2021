@@ -29,7 +29,7 @@ class Optimiser():
             for i in range(len(parameters)):
                 parameters[i] = c[i]
             score = self.eval_function()
-            print(c, score)
+            print(int(score), c)
             if score > max_score:
                 max_score = score
                 max_comb = c
@@ -44,11 +44,11 @@ class Optimiser():
         pass
 
 
-pricesFile="./prices250.txt"
+pricesFile="./prices500.txt"
 prcAll = loadPrices(pricesFile)
 
 eval_function = lambda: calcPL(prcAll)[0]
 optimiser = Optimiser(parameters, eval_function)
 
-max_comb, max_score = optimiser.sweep_all(0.05)
+max_comb, max_score = optimiser.sweep_all(0.1)
 print(max_comb, max_score)

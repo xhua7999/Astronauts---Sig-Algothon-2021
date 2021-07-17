@@ -9,7 +9,10 @@ currentPos = np.zeros(nInst)
 
 parameters = [0.1, 0.55, 0.95]
 
-trade_stocks = np.ones(100)
+# parameters = [0.0, 0.0, 1]
+trade_stocks = np.zeros((100,))
+# trade_stocks[:50] = 1
+trade_stocks[41] = 1
 
 def moving_average(price_data, window_size):
     num_instruments, num_days = price_data.shape
@@ -24,9 +27,9 @@ def getMyPosition(prcSoFar):
     global currentPos
     (nins,nt) = prcSoFar.shape
 
-    mov_avg1 = moving_average(prcSoFar, 1)
-    mov_avg2 = moving_average(prcSoFar, 5)
-    mov_avg3 = moving_average(prcSoFar, 10)
+    mov_avg1 = moving_average(prcSoFar, 3)
+    mov_avg2 = moving_average(prcSoFar, 10)
+    mov_avg3 = moving_average(prcSoFar, 20)
 
     # edge1 = (mov_avg1 - prcSoFar[:,-1]) / prcSoFar[:,-1]
     # edge2 = (mov_avg2 - prcSoFar[:,-1]) / prcSoFar[:,-1]
@@ -40,12 +43,14 @@ def getMyPosition(prcSoFar):
     weighted_edge /= sum(parameters)
 
     required_edge = 0.005
+    required_edge = 0.01
 
     max_min_pos = 1*(weighted_edge > required_edge) - 1*(weighted_edge < -required_edge)
 
     currentPos = (10000/prcSoFar[:,-1]) * max_min_pos
 
+    currentPos = currentPos * trade_stocks
+
     # The algorithm must return a vector of integers, indicating the position of each stock.
     # Position = number of shares, and can be positve or negative depending on long/short position.
     return currentPos
-
