@@ -23,7 +23,7 @@ def loadPrices(fn):
     nt, nInst = df.values.shape
     return (df.values).T
 
-pricesFile="./prices250.txt"
+pricesFile="./prices500.txt"
 prcAll = loadPrices(pricesFile)
 print ("Loaded %d instruments for %d days" % (nInst, nt))
 
@@ -38,7 +38,7 @@ def calcPL(prcHist):
     value = 0
     todayPLL = []
     (_,nt) = prcHist.shape
-    for t in range(201,251):
+    for t in range(1,501):
         prcHistSoFar = prcHist[:,:t]
         newPosOrig = getPosition(prcHistSoFar)
         curPrices = prcHistSoFar[:,-1] 
