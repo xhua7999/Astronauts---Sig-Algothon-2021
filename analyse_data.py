@@ -66,15 +66,22 @@ def get_price_change(df):
     return new_df
 
 
-def filter_stocks(df, keep_function):
+def filter_stocks(df, keep_function=None, index_set=None):
     drop_columns = []
     for i in range(df.shape[1]):
-        if not keep_function(df.iloc[:,i].values):
+        if keep_function is not None and not keep_function(df.iloc[:,i].values):
+            drop_columns.append(i)
+        if index_set is not None and i not in index_set:
             drop_columns.append(i)
     return df.drop(drop_columns, axis=1)
 
 
-percent_df = filter_stocks(percent_df, lambda arr: random.randint(1,30) == 1)
+index_set = {1, 2, 3, 4, 5}
+
+# percent_df = filter_stocks(percent_df, keep_function=(lambda arr: random.randint(1,30) == 1), index_set=index_set)
+
+percent_df = filter_stocks(percent_df, keep_function=None, index_set=index_set)
+
 plot_df(percent_df)
 
 filtered_percent_df = gaussian_filter(percent_df, 10)
@@ -85,10 +92,10 @@ plot_df(price_change_df)
 
 # means = get_mean_price(price_change_df)
 
-def total_price_change(price_change_df):
+# def total_price_change(price_change_df):
     
 
-print(np.mean(means))
+# print(np.mean(means))
 
 
 # std_devs = get_std_dev(percent_df)
