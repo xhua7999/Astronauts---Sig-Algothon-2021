@@ -26,6 +26,7 @@ print(sum(profits))
 print(sum(profits[:50]))
 print(sum(profits[50:]))
 
+
 # eval_function = lambda: calcPL(prcAll)[0]
 # optimiser = Optimiser(parameters, eval_function)
 

@@ -61,6 +61,7 @@ def polynomial_moving_average(price_data, window_size, powers):
 
 
 def getMyPosition(prcSoFar):
+    
     global currentPos
 
     # Zero out position on first day just in case it hasn't been initialised to 0
