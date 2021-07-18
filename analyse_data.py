@@ -149,6 +149,26 @@ def exp_moving_averages(df, window_size):
     return new_df
 
 
+def momentums(price_data, window_size):
+    
+    num_instruments, num_days = price_data.shape
+    actual_window_size = min(window_size, num_days-1)
+    price_diffs = np.zeros((num_instruments, actual_window_size))
+    for i in range(actual_window_size):
+        price_diffs[:,-(i+1)] = (price_data[:,-(i+1)] - price_data[:,-(i+2)]) / price_data[:,-(i+2)]
+
+    # weights = np.linspace(0, 1, actual_window_size)
+    # weights /= np.sum(weights)
+
+    # for i in range(actual_window_size):
+    #     price_diffs[:,i] *= weights[i]
+
+    # momentum = np.sum(price_diffs, axis=1)
+    momentum = np.mean(price_diffs, axis=1)
+
+    return momentum
+
+
 
 mov_avg_df = moving_averages(percent_df, window_size=10)
 plot_df(mov_avg_df, params='-.')
