@@ -4,6 +4,9 @@ import numpy as np
 import scipy
 from scipy.ndimage import gaussian_filter1d
 import random
+from Astronauts import moving_average
+from eval import loadPrices, calcPL
+
 
 df = pd.read_csv('prices500.txt', sep='     ', header=None)
 print(df)
@@ -29,11 +32,11 @@ print(percent_df)
 
 
 
-def plot_df(df):
+def plot_df(df, params=''):
     for i in range(df.shape[1]):
         data = df.iloc[:,i]
-        plt.plot(data)
-    plt.show()
+        plt.plot(data, params)
+    
 
 
 def get_std_dev(df):
@@ -77,26 +80,30 @@ def filter_stocks(df, keep_function=None, index_set=None):
 
 
 
+
+
+
 # def plot_price_changes()
 
-# index_set = {46, 61}
+index_set = {8}
 # index_set=None
 
-index_set = set()
-for i in range(50):
-    index_set.add(i)
+# index_set = set(i for i in range(50))
 
-# percent_df = filter_stocks(percent_df, keep_function=(lambda arr: random.randint(1,30) == 1), index_set=index_set)
+keep_function = lambda arr: random.randint(1,30) == 1
+keep_function=None
 
-percent_df = filter_stocks(percent_df, keep_function=None, index_set=index_set)
+percent_df = filter_stocks(percent_df, keep_function=keep_function, index_set=index_set)
+
+# percent_df = filter_stocks(percent_df, keep_function=None, index_set=index_set)
 
 plot_df(percent_df)
 
-gaussian_percent_df = gaussian_filter(percent_df, 10)
-plot_df(gaussian_percent_df)
+# gaussian_percent_df = gaussian_filter(percent_df, 10)
+# plot_df(gaussian_percent_df)
 
-price_change_df = get_price_change(percent_df)
-plot_df(price_change_df)
+# price_change_df = get_price_change(percent_df)
+# plot_df(price_change_df)
 
 
 
@@ -124,3 +131,35 @@ def plot_price_change(price_change_df):
 # plt.xlabel('Average price of stock in dollars')
 # plt.ylabel('Standard deviation in percentage increase from initial price')
 # plt.show()
+
+
+def moving_averages(df, window_size):
+    new_df = df.copy()
+    print("SHAPE1", df.shape[1])
+    for i in range(df.shape[1]):
+        new_df.iloc[:,i] = new_df.iloc[:,i].rolling(window=window_size).mean()
+    return new_df
+
+
+def exp_moving_averages(df, window_size):
+    new_df = df.copy()
+    print("SHAPE1", df.shape[1])
+    for i in range(df.shape[1]):
+        new_df.iloc[:,i] = new_df.iloc[:,i].ewm(span=window_size,adjust=False).mean()
+    return new_df
+
+
+
+mov_avg_df = moving_averages(percent_df, window_size=10)
+plot_df(mov_avg_df, params='-.')
+
+mov_avg_df = moving_averages(percent_df.multiply(1.005), window_size=10)
+plot_df(mov_avg_df, params='-.')
+
+mov_avg_df = moving_averages(percent_df.multiply(0.995), window_size=10)
+plot_df(mov_avg_df, params='-.')
+
+mov_avg_df = exp_moving_averages(percent_df, window_size=20)
+plot_df(mov_avg_df, params='-.')
+
+plt.show()

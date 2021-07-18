@@ -11,7 +11,11 @@ eval_function = lambda: calcPL(prcAll)[0]
 profits = []
 
 for i in range(100):
-    trade_stocks[i] = 1 if i >= 50 else -1
+    trade_stocks[i] = 0
+
+for i in range(100):
+    # trade_stocks[i] = 1 if i >= 50 else -1
+    trade_stocks[i] = 1
     profit = eval_function()
     profits.append(profit)
     print(i, profit)
