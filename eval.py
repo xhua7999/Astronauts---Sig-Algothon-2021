@@ -72,8 +72,6 @@ def calcPL(prcHist):
     if (plstd > 0):
         annSharpe = 16 * plmu / plstd
 
-    # print("volumes:", totDVolume0, totDVolume1)
-    # print(plmu)
     return (plmu, ret, annSharpe, totDVolume)
 
 if __name__ == '__main__':

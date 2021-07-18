@@ -1,55 +1,72 @@
 #!/usr/bin/env python
 
-# RENAME THIS FILE WITH YOUR TEAM NAME.
-
 import numpy as np
 
 nInst=100
 currentPos = np.zeros(nInst)
 
-# optimised_wma_window = [16, 10, 13, 21, 45, 56, 26, 30, 22, 8, 16, 13, 9, 17, 22, 18, 21, 22, 38, 18, 14, 59, 18, 47, 17, 16, 15, 17, 18, 22, 19, 19, 10, 15, 18, 14, 19, 19, 29, 21, 16, 13, 16, 41, 20, 28, 13, 27, 23, 14]
+# optimised_wma_window = [30, 41, 18, 42, 20, 47, 56, 44, 34, 7, 53, 49, 57, 32, 56, 53, 51, 44, 35, 36, 35, 52, 31, 59, 25, 49, 51, 24, 36, 24, 53, 46, 48, 26, 34, 42, 59, 56, 40, 33, 58, 36, 26, 28, 52, 58, 37, 15, 51, 32]
+# o2 = [19, 19, 19, 10, 20, 19, 19, 19, 19, 9, 19, 19, 19, 13, 19, 19, 15, 19, 19, 19, 19, 21, 19, 19, 19, 23, 14, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 19, 21, 19, 40, 35, 19, 19, 18, 34, 59, 10, 19, 24]
 
-# optimised_wma_window2 = [8, 7, 28, 27, 51, 52, 21, 35, 29, 8, 20, 7, 10, 14, 26, 13, 26, 45, 45, 33, 12, 58, 21, 54, 11, 20, 21, 19, 19, 14, 21, 18, 16, 7, 10, 8, 20, 43, 32, 14, 17, 12, 16, 12, 21, 40, 14, 28, 26, 10]
+# Polynomial powers for moving average after optimisation
+optimised_powers = [2.250000000000001, 4.000000000000001, 6.300000000000002, 0.6000000000000002, 0.1, 0.45000000000000007, 2.0500000000000007, 2.450000000000001, 0.40000000000000013, 6.200000000000002, 1.2500000000000004, 1.6000000000000005, 7.750000000000002, 2.3000000000000007, 0.6500000000000001, 2.0500000000000007, 1.7500000000000007, 2.350000000000001, 0.8500000000000002, 3.2500000000000013, 3.8500000000000014, 1.5500000000000005, 3.550000000000001, 0.8000000000000002, 5.500000000000002, 2.800000000000001, 1.0500000000000003, 5.650000000000001, 3.2500000000000013, 5.850000000000001, 0.9500000000000003, 2.400000000000001, 3.9500000000000015, 5.050000000000002, 3.2500000000000013, 2.700000000000001, 1.4500000000000006, 0.9500000000000003, 0.30000000000000004, 2.0500000000000007, 4.850000000000001, 7.750000000000002, 6.150000000000001, 4.650000000000001, 0.9000000000000002, 1.3500000000000005, 1.0000000000000004, 3.9000000000000012, 0.30000000000000004, 5.600000000000001]
+optimised_powers = np.array(optimised_powers).T
 
-# optimised_powers = [2.250000000000001, 7.500000000000002, 0.3500000000000001, 0.45000000000000007, 0.1, 2.600000000000001, 0.8500000000000002, 0.15000000000000002, 2.950000000000001, 4.200000000000001, 0.8500000000000002, 6.200000000000002, 
-# 4.800000000000002, 1.7000000000000006, 0.6500000000000001, 1.2000000000000004, 0.5000000000000001, 0.8500000000000002, 0.6000000000000002, 1.1000000000000005, 2.950000000000001, 2.0500000000000007, 1.2000000000000004, 0.9500000000000003, 3.4000000000000012, 0.8000000000000002, 1.8000000000000007, 1.0500000000000003, 1.2500000000000004, 3.7500000000000013, 1.0500000000000003, 2.3000000000000007, 2.100000000000001, 3.450000000000001, 1.1500000000000004, 5.700000000000001, 0.8500000000000002, 0.9000000000000002, 0.30000000000000004, 2.3000000000000007, 1.6000000000000005, 2.900000000000001, 5.750000000000002, 1.9500000000000006, 1.0000000000000004, 1.3500000000000005, 1.0000000000000004, 0.3500000000000001, 0.25000000000000006, 2.350000000000001]
-# optimised_powers = np.array(optimised_powers)
-
+# Parameters used in our model and for optimisation
 parameters = {
     "weighted_average_window_size": 19,
-    "weighted_average_power": 2.109999999999999,
+    "weighted_average_powers": optimised_powers,
     "required_edge": 0.005
 }
 
-# parameters["weighted_average_window_size"] = 19
-# parameters["weighted_average_power"] = 3.19
-# parameters["momentum_window_size"] = 0
-# parameters["required_edge"] = 0.005
 
+
+# Array containing 1's for the stocks which we will trade and 0's for stocks we won't trade
 trade_stocks = np.ones((100,))
 for i in range(50):
     trade_stocks[i] = 0
 
 
-def weighted_moving_average(price_data, window_size):
+def polynomial_moving_average(price_data, window_size, powers):
+    """Calculate the polynomial moving average of an array of price data."""
     num_instruments, num_days = price_data.shape
-    actual_window_size = min(window_size, num_days)
-    
-    values = np.zeros((num_instruments, actual_window_size))
 
     weights = np.linspace(0.01, 1, window_size)
-    if actual_window_size != window_size:
-        weights = weights[window_size-actual_window_size:]
 
-    weights = np.power(weights, parameters["weighted_average_power"])
+    if num_days < window_size:
+        weights = weights[window_size - num_days:]
+        window_size = min(window_size, num_days)        
 
-    weights = weights / np.sum(weights)
+    weights = np.tile(weights, (num_instruments,1))
+    weights = np.power(weights, powers.reshape((num_instruments,1)))
 
-    for i in range(actual_window_size):
-        values[:,-(1+i)] = price_data[:,-(1+i)] * weights[-(1+i)]
+    weights /= np.sum(weights, axis=1).reshape(num_instruments,1)
+
+    values = np.zeros((num_instruments, window_size))
+    for i in range(window_size):
+        values[:,-(1+i)] = price_data[:,-(1+i)] * weights[:,-(1+i)]
 
     return np.sum(values, axis=1)
 
+# def non_vectorised_polynomial_moving_average(price_data, window_size, power):
+#     """Calculate the polynomial moving average of an array of price data."""
+#     num_instruments, num_days = price_data.shape
+    
+#     pma_values = np.zeros((num_instruments,1))
+
+#     for i in range(num_instruments):
+        
+#         window_size = optimised_wma_window[i]
+#         weights = np.linspace(0.01, 1, window_size)
+#         if num_days < window_size:
+#             weights = weights[window_size - num_days:]
+#             window_size = min(window_size, num_days)
+
+#         weights = np.power(weights, optimised_powers[i])
+#         weights /= np.sum(weights)
+
+#         for j in range(window_size):
+#             pma_values[-(1+j)] = price_data[i,-(1+j)] * weights[-(1+j)]
 
 
 def getMyPosition(prcSoFar):
@@ -60,68 +77,31 @@ def getMyPosition(prcSoFar):
     if num_days == 1:
         currentPos = np.zeros(num_instruments)
 
+    # Only use the last 50 stocks, as we don't trade the first 50
+    prcSoFar = prcSoFar[50:]
+
     # Use a weighted average as our theoretical stock value
-    weighted_avg = weighted_moving_average(prcSoFar, parameters["weighted_average_window_size"])
+    weighted_avg = polynomial_moving_average(prcSoFar, parameters["weighted_average_window_size"], parameters["weighted_average_powers"])
 
     # Calculate the edge of our determined theoretical price against the actual current price
     weighted_edge = (weighted_avg - prcSoFar[:,-1]) / weighted_avg
 
-    max_min_pos = 2*(currentPos > 0) - 1 + 1*(currentPos == 0)
-
-    # max_min_pos = 1*(weighted_edge > required_edge) - 1*(weighted_edge < -required_edge)
-
-    required_edge = parameters["required_edge"]
-
+    # This array represents our current position in discrete states, where each array value
+    # can be -1, 0, 1 representing short, zero and long positions.
+    # This is set here to match the current position.
+    max_min_pos = 2*(currentPos[50:] > 0) - 1 + 1*(currentPos[50:] == 0)
+    
+    # If the edge in either direction crosses our edge threshold, we switch positions
     for i in range(len(max_min_pos)):
-        if weighted_edge[i] > required_edge:
+        if weighted_edge[i] > parameters["required_edge"]:
             max_min_pos[i] = 1
-        elif weighted_edge[i] < -required_edge:
-            max_min_pos[i] = -1
+        elif weighted_edge[i] < -parameters["required_edge"]:
+            max_min_pos[i] = -1      
 
-        # if max_min_pos[i] == 0:
-        #     max_min_pos[i] = 1 if currentPos[i] >= 0 else -1
-
-
-    # for i in range(50):
-    #     if momentums[i] > parameters["required_edge"]:
-    #         max_min_pos[i] = 1
-    #     elif momentums[i] < -parameters["required_edge"]:
-    #         max_min_pos[i] = -1
-            
-
-    currentPos = (10000/prcSoFar[:,-1]) * max_min_pos
+    # Convert the short/zero/long array to a position for the last 50 stocks
+    currentPos[50:] = (10000/prcSoFar[:,-1]) * max_min_pos
+    
+    # Zero out stocks which we aren't trading
     currentPos *= trade_stocks
 
-    
-
-    # The algorithm must return a vector of integers, indicating the position of each stock.
-    # Position = number of shares, and can be positve or negative depending on long/short position.
     return currentPos
-
-
-# def getMyPosition(prcSoFar):
-#     global currentPos
-#     (nins,nt) = prcSoFar.shape
-
-#     mov_avg1 = moving_average(prcSoFar, 1)
-#     mov_avg2 = moving_average(prcSoFar, 5)
-#     mov_avg3 = moving_average(prcSoFar, 10)
-
-#     edge1 = (mov_avg1 - prcSoFar[:,-1]) / prcSoFar[:,-1]
-#     edge2 = (mov_avg2 - prcSoFar[:,-1]) / prcSoFar[:,-1]
-#     edge3 = (mov_avg3 - prcSoFar[:,-1]) / prcSoFar[:,-1]
-
-#     weighted_edge = parameters[0]*edge1 + parameters[1]*edge2 + parameters[2]*edge3
-#     weighted_edge /= sum(parameters)
-
-#     required_edge = 0.005
-
-#     max_min_pos = (1*(weighted_edge > required_edge) - 1*(weighted_edge < -required_edge))
-
-#     currentPos = (10000/prcSoFar[:,-1]) * max_min_pos * trade_stocks
-
-#     # The algorithm must return a vector of integers, indicating the position of each stock.
-#     # Position = number of shares, and can be positve or negative depending on long/short position.
-#     return currentPos
-
-

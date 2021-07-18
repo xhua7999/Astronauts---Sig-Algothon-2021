@@ -65,7 +65,7 @@ optimiser = Optimiser(parameters, eval_function)
 
 # Set up default parameters
 parameters["weighted_average_window_size"] = 19
-parameters["weighted_average_power"] = 3.19
+parameters["weighted_average_power"] = 2.109999999999999
 parameters["momentum_window_size"] = 0
 parameters["required_edge"] = 0.005
 
@@ -80,12 +80,13 @@ parameters["required_edge"] = 0.005
 # # for i in range(50,100):
 # #     trade_stocks[i] = 0
 
-max_comb, max_score = optimiser.sweep_single(1, (2, 40), "weighted_average_window_size")
+# max_comb, max_score = optimiser.sweep_single(1, (2, 40), "weighted_average_window_size")
 
 # max_comb, max_score = optimiser.sweep_single(0.001, (0, 0.1), "required_edge")
 # max_comb, max_score = optimiser.sweep_single(0.01, (0.1, 5), "weighted_average_power")
 # max_comb, max_score = optimiser.sweep_single(1, (0, 20), "momentum_window_size")
 
+max_comb, max_score = optimiser.sweep_single(0.001, (0, 0.1), "required_edge")
 print(max_comb, max_score)
 
 
@@ -99,10 +100,10 @@ print(max_comb, max_score)
 # for i in range(50, 100):
 #     trade_stocks[i] = 1
     
-#     # max_comb, max_score = optimiser.sweep_single(0.005, (0, 0.2), "required_edge")
+#     max_comb, max_score = optimiser.sweep_single(0.001, (0, 0.1), "required_edge")
 #     # max_comb, max_score = optimiser.sweep_single(1, (3, 60), "weighted_average_window_size")
 #     # max_comb, max_score = optimiser.sweep_single(0.05, (0.1, 8), "weighted_average_power")
-#     max_comb, max_score = optimiser.sweep_single(1, (0, 1), "momentum_window_size")
+#     # max_comb, max_score = optimiser.sweep_single(1, (0, 1), "momentum_window_size")
 
 #     profits.append(max_score)
 #     max_param.append(max_comb)
