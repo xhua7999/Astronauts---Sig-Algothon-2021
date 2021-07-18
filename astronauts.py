@@ -5,7 +5,7 @@
 import numpy as np
 
 nInst=100
-currentPos = np.ones(nInst)
+currentPos = np.zeros(nInst)
 
 # optimised_wma_window = [16, 10, 13, 21, 45, 56, 26, 30, 22, 8, 16, 13, 9, 17, 22, 18, 21, 22, 38, 18, 14, 59, 18, 47, 17, 16, 15, 17, 18, 22, 19, 19, 10, 15, 18, 14, 19, 19, 29, 21, 16, 13, 16, 41, 20, 28, 13, 27, 23, 14]
 
@@ -17,17 +17,18 @@ currentPos = np.ones(nInst)
 
 parameters = {
     "weighted_average_window_size": 19,
-    "weighted_average_power": 1.35,
-    # "momentum_window_size": 10,
-    "momentum_window_size": 0,
+    "weighted_average_power": 2.109999999999999,
     "required_edge": 0.005
 }
 
-trade_stocks = np.ones((100,))
-# for i in range(50):
-#     trade_stocks[i] = 0
+# parameters["weighted_average_window_size"] = 19
+# parameters["weighted_average_power"] = 3.19
+# parameters["momentum_window_size"] = 0
+# parameters["required_edge"] = 0.005
 
-buy_sell_history = []
+trade_stocks = np.ones((100,))
+for i in range(50):
+    trade_stocks[i] = 0
 
 
 def weighted_moving_average(price_data, window_size):
@@ -50,71 +51,77 @@ def weighted_moving_average(price_data, window_size):
     return np.sum(values, axis=1)
 
 
-def get_momentums(price_data, window_size):
-    if window_size == 0:
-        return 0
-
-    num_instruments, num_days = price_data.shape
-    actual_window_size = min(window_size, num_days-1)
-    price_diffs = np.zeros((num_instruments, actual_window_size))
-    for i in range(actual_window_size):
-        price_diffs[:,-(i+1)] = (price_data[:,-(i+1)] - price_data[:,-(i+2)]) / price_data[:,-(i+2)]
-
-    if actual_window_size == 1:
-        weights = np.array([1])
-    else:
-        weights = np.linspace(0, 1, actual_window_size)
-        weights /= np.sum(weights)
-
-    for i in range(actual_window_size):
-        price_diffs[:,i] *= weights[i]
-
-    momentum = np.sum(price_diffs, axis=1)
-
-    # momentum = np.mean(price_diffs, axis=1)
-
-    return momentum
-
 
 def getMyPosition(prcSoFar):
     global currentPos
 
-    momentum = get_momentums(prcSoFar, parameters["momentum_window_size"])
+    # Zero out position on first day just in case it hasn't been initialised to 0
+    num_instruments, num_days = prcSoFar.shape
+    if num_days == 1:
+        currentPos = np.zeros(num_instruments)
 
-    weighted_avg = (1 + momentum) * weighted_moving_average(prcSoFar, parameters["weighted_average_window_size"])
+    # Use a weighted average as our theoretical stock value
+    weighted_avg = weighted_moving_average(prcSoFar, parameters["weighted_average_window_size"])
 
+    # Calculate the edge of our determined theoretical price against the actual current price
     weighted_edge = (weighted_avg - prcSoFar[:,-1]) / weighted_avg
+
+    max_min_pos = 2*(currentPos > 0) - 1 + 1*(currentPos == 0)
+
+    # max_min_pos = 1*(weighted_edge > required_edge) - 1*(weighted_edge < -required_edge)
 
     required_edge = parameters["required_edge"]
 
-    max_min_pos = 1*(weighted_edge > required_edge) - 1*(weighted_edge < -required_edge)
+    for i in range(len(max_min_pos)):
+        if weighted_edge[i] > required_edge:
+            max_min_pos[i] = 1
+        elif weighted_edge[i] < -required_edge:
+            max_min_pos[i] = -1
+
+        # if max_min_pos[i] == 0:
+        #     max_min_pos[i] = 1 if currentPos[i] >= 0 else -1
+
+
+    # for i in range(50):
+    #     if momentums[i] > parameters["required_edge"]:
+    #         max_min_pos[i] = 1
+    #     elif momentums[i] < -parameters["required_edge"]:
+    #         max_min_pos[i] = -1
+            
 
     currentPos = (10000/prcSoFar[:,-1]) * max_min_pos
+    currentPos *= trade_stocks
 
-    currentPos = currentPos * trade_stocks
+    
 
     # The algorithm must return a vector of integers, indicating the position of each stock.
     # Position = number of shares, and can be positve or negative depending on long/short position.
     return currentPos
 
 
-# def get_momentum(prcSoFar):
-#     try:
-#         lastPrice = prcSoFar[:,-1]
-#         secondLastPrice = prcSoFar[:,-2]
-#         thirdLastPrice = prcSoFar[:,-3]
-#         fourthLastPrice = prcSoFar[:,-4]
-#     except:
-#         # Handle Day 1 when prcSoFar is a 1D array
-#         lastPrice = prcSoFar
-#         secondLastPrice = prcSoFar
-#         thirdLastPrice = prcSoFar
-#         fourthLastPrice = prcSoFar
-    
-#     gradientprev1 = (lastPrice - secondLastPrice)/secondLastPrice
-#     gradientprev2 = (secondLastPrice - thirdLastPrice)/thirdLastPrice
-#     gradientprev3 = (thirdLastPrice - fourthLastPrice)/fourthLastPrice
-    
-#     momentum = 0.5* gradientprev1 + 0.3* gradientprev2 + 0.2 *gradientprev3
+# def getMyPosition(prcSoFar):
+#     global currentPos
+#     (nins,nt) = prcSoFar.shape
 
-#     return momentum
+#     mov_avg1 = moving_average(prcSoFar, 1)
+#     mov_avg2 = moving_average(prcSoFar, 5)
+#     mov_avg3 = moving_average(prcSoFar, 10)
+
+#     edge1 = (mov_avg1 - prcSoFar[:,-1]) / prcSoFar[:,-1]
+#     edge2 = (mov_avg2 - prcSoFar[:,-1]) / prcSoFar[:,-1]
+#     edge3 = (mov_avg3 - prcSoFar[:,-1]) / prcSoFar[:,-1]
+
+#     weighted_edge = parameters[0]*edge1 + parameters[1]*edge2 + parameters[2]*edge3
+#     weighted_edge /= sum(parameters)
+
+#     required_edge = 0.005
+
+#     max_min_pos = (1*(weighted_edge > required_edge) - 1*(weighted_edge < -required_edge))
+
+#     currentPos = (10000/prcSoFar[:,-1]) * max_min_pos * trade_stocks
+
+#     # The algorithm must return a vector of integers, indicating the position of each stock.
+#     # Position = number of shares, and can be positve or negative depending on long/short position.
+#     return currentPos
+
+

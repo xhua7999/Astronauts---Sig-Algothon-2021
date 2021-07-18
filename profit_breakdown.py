@@ -3,7 +3,7 @@ from eval import loadPrices, calcPL
 from Astronauts import parameters, trade_stocks
 
 
-pricesFile="./prices250.txt"
+pricesFile="./prices500.txt"
 prcAll = loadPrices(pricesFile)
 
 eval_function = lambda: calcPL(prcAll)[0]

@@ -28,6 +28,7 @@ prcAll = loadPrices(pricesFile)
 print ("Loaded %d instruments for %d days" % (nInst, nt))
 
 def calcPL(prcHist):
+    # print(parameters)
     cash = 0
     curPos = np.zeros(nInst)
     totDVolume = 0
@@ -38,7 +39,7 @@ def calcPL(prcHist):
     value = 0
     todayPLL = []
     (_,nt) = prcHist.shape
-    for t in range(1,251):
+    for t in range(1,501):
         prcHistSoFar = prcHist[:,:t]
         newPosOrig = getPosition(prcHistSoFar)
         curPrices = prcHistSoFar[:,-1] 
@@ -70,6 +71,9 @@ def calcPL(prcHist):
     annSharpe = 0.0
     if (plstd > 0):
         annSharpe = 16 * plmu / plstd
+
+    # print("volumes:", totDVolume0, totDVolume1)
+    # print(plmu)
     return (plmu, ret, annSharpe, totDVolume)
 
 if __name__ == '__main__':
