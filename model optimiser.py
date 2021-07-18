@@ -12,19 +12,19 @@ class Optimiser():
         self.parameters = parameters
         self.eval_function = eval_function
 
-    def sweep_single(self, resolution, sweep_range, parameter_index):
+    def sweep_single(self, resolution, sweep_range, parameter_name):
         sweep_values = np.arange(sweep_range[0], sweep_range[1], resolution)
         
         max_score = -float('inf')
         max_value = None
 
         for value in sweep_values:
-            self.parameters[parameter_index] = value
+            self.parameters[parameter_name] = value
             score = self.eval_function()
             if score > max_score:
                 max_score = score
                 max_value = value
-            # print(value, score)
+            print(value, score)
 
         return max_value, max_score
 
@@ -39,8 +39,8 @@ class Optimiser():
         values = [resolution * i for i in range(int(1/resolution))]
         combs = combinations(values, len(parameters))
         for c in combs:
-            for i in range(len(parameters)):
-                parameters[i] = c[i]
+            for param_name in parameters:
+                parameters[param_name] = c[i]
             score = self.eval_function()
             
             
@@ -49,10 +49,6 @@ class Optimiser():
                 max_comb = c
 
                 print(int(score), c)
-
-        # # Set parameters to best parameters found
-        # for i in range(len(parameters)):
-        #     parameters[i] = max_comb[i]
 
         return max_comb, max_score
 
@@ -64,7 +60,7 @@ class Optimiser():
 
 
 
-pricesFile="./prices500.txt"
+pricesFile="./prices250.txt"
 prcAll = loadPrices(pricesFile)
 
 eval_function = lambda: calcPL(prcAll)[0]
@@ -79,23 +75,29 @@ optimiser = Optimiser(parameters, eval_function)
 # for i in range(50,100):
 #     trade_stocks[i] = 0
 
-# max_comb, max_score = optimiser.sweep_single(1, (6, 50), 4)
+max_comb, max_score = optimiser.sweep_single(1, (8, 60), "weighted_average_window_size")
+
+# max_comb, max_score = optimiser.sweep_single(0.05, (0.5, 5), 6)
+
 # max_comb, max_score = optimiser.sweep_single(0.001, (0, 0.15), 5)
-# print(max_comb, max_score)
+print(max_comb, max_score)
 
-for i in range(100):
-    trade_stocks[i] = 0
 
-profits = []
-max_param = []
-for i in range(50, 100):
-    # trade_stocks[i] = 1 if i >= 50 else -1
-    trade_stocks[i] = 1
-    max_comb, max_score = optimiser.sweep_single(1, (1, 60), 3)
-    profits.append(max_score)
-    max_param.append(max_comb)
-    print(i, max_comb, max_score)
-    trade_stocks[i] = 0
 
-print("TOTAL: ", sum(profits))
-print(max_param)
+# for i in range(100):
+#     trade_stocks[i] = 0
+
+# profits = []
+# max_param = []
+# for i in range(50, 100):
+#     trade_stocks[i] = 1
+#     max_comb, max_score = optimiser.sweep_single(1, (1, 60), "weighted_average_window_size")
+    
+#     # max_comb, max_score = optimiser.sweep_single(0.05, (0.1, 8), "weighted_average_power")
+#     profits.append(max_score)
+#     max_param.append(max_comb)
+#     print(i, max_comb, max_score)
+#     trade_stocks[i] = 0
+
+# print("TOTAL: ", sum(profits))
+# print(max_param)
