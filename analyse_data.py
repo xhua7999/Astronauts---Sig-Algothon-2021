@@ -4,7 +4,7 @@ import numpy as np
 import scipy
 from scipy.ndimage import gaussian_filter1d
 import random
-from Astronauts import moving_average
+from astronauts import moving_average
 from eval import loadPrices, calcPL
 
 
