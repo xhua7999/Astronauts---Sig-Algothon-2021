@@ -84,10 +84,10 @@ def filter_stocks(df, keep_function=None, index_set=None):
 
 # def plot_price_changes()
 
-index_set = {8}
+index_set = {58}
 # index_set=None
 
-# index_set = set(i for i in range(50))
+index_set = set(i for i in range(50))
 
 keep_function = lambda arr: random.randint(1,30) == 1
 keep_function=None
@@ -169,14 +169,14 @@ def momentums(price_data, window_size):
 
 
 
-# mov_avg_df = moving_averages(percent_df, window_size=10)
+# mov_avg_df = moving_averages(percent_df, window_size=19)
 # plot_df(mov_avg_df, params='-.')
 
-mov_avg_df = moving_averages(percent_df, window_size=13)
-plot_df(mov_avg_df, params='-.')
+# mov_avg_df = moving_averages(percent_df, window_size=13)
+# plot_df(mov_avg_df, params='-.')
 
-mov_avg_df = moving_averages(percent_df, window_size=48)
-plot_df(mov_avg_df, params='-.')
+# mov_avg_df = moving_averages(percent_df, window_size=48)
+# plot_df(mov_avg_df, params='-.')
 
 # mov_avg_df = moving_averages(percent_df.multiply(1.005), window_size=10)
 # plot_df(mov_avg_df, params='-.')

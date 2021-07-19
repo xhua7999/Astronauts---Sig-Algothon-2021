@@ -1,6 +1,6 @@
 import numpy as np
 from eval import loadPrices, calcPL
-from Astronauts import parameters, trade_stocks
+from astronauts import parameters, trade_stocks
 
 
 pricesFile="./prices500.txt"

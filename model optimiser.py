@@ -1,7 +1,7 @@
 from itertools import combinations
 import numpy as np
 from eval import loadPrices, calcPL, prcAll
-from Astronauts import parameters, trade_stocks
+from astronauts import parameters, trade_stocks
 
 
 class Optimiser():

@@ -2,9 +2,9 @@
 
 import numpy as np
 import pandas as pd
-from Astronauts import getMyPosition as getPosition
+from astronauts import getMyPosition as getPosition
 
-from Astronauts import priceval, avg1val, avg2val
+from astronauts import priceval, avg1val, avg2val
 import matplotlib.pyplot as plt
 
 
