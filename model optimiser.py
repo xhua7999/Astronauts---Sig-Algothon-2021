@@ -24,7 +24,7 @@ class Optimiser():
             if score > max_score:
                 max_score = score
                 max_value = value
-            # print(value, score)
+            print(value, score)
 
         return max_value, max_score
 
@@ -64,10 +64,10 @@ eval_function = lambda: calcPL(prcAll)[0]
 optimiser = Optimiser(parameters, eval_function)
 
 # Set up default parameters
-parameters["weighted_average_window_size"] = 19
-parameters["weighted_average_power"] = 2.109999999999999
-parameters["momentum_window_size"] = 0
-parameters["required_edge"] = 0.005
+# parameters["weighted_average_window_size"] = 19
+# parameters["weighted_average_power"] = 2.109999999999999
+# parameters["momentum_window_size"] = 0
+# parameters["required_edge"] = 0.005
 
 # print("eval", eval_function())
 
@@ -86,9 +86,14 @@ parameters["required_edge"] = 0.005
 # max_comb, max_score = optimiser.sweep_single(0.01, (0.1, 5), "weighted_average_power")
 # max_comb, max_score = optimiser.sweep_single(1, (0, 20), "momentum_window_size")
 
-max_comb, max_score = optimiser.sweep_single(0.001, (0, 0.1), "required_edge")
-print(max_comb, max_score)
+# max_comb, max_score = optimiser.sweep_single(0.001, (0, 0.1), "required_edge")
+# print(max_comb, max_score)
 
+
+parameters["moving_avg1"] = 9
+
+max_comb, max_score = optimiser.sweep_single(1, (9, 80), "moving_avg2")
+print(max_comb, max_score)
 
 
 # for i in range(100):

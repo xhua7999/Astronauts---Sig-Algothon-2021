@@ -4,6 +4,10 @@ import numpy as np
 import pandas as pd
 from Astronauts import getMyPosition as getPosition
 
+from Astronauts import priceval, avg1val, avg2val
+import matplotlib.pyplot as plt
+
+
 # Algorithm testing file. 
 # Quantitative judging will be determined from output of this program.
 # Judging will use unseeen, future price data from the same universe.
@@ -82,6 +86,13 @@ if __name__ == '__main__':
     print ("return: %.5lf" % ret)
     print ("annSharpe(PL): %.2lf " % sharpe)
     print ("totDvolume: %.0lf " % dvol)
+
+    # print(priceval)
+    plt.plot(priceval)
+    plt.plot(avg1val)
+    plt.plot(avg2val)
+    plt.show()
+
 
 
 

@@ -13,14 +13,25 @@ optimised_powers = np.array(optimised_powers).T
 parameters = {
     "weighted_average_window_size": 19,
     "weighted_average_powers": optimised_powers,
-    "required_edge": 0.005
+    "required_edge": 0.005,
+    "moving_avg1": 13,
+    "moving_avg2": 48
 }
 
 # Array containing 1's for the stocks which we will trade and 0's for stocks we won't trade
 trade_stocks = np.ones((100,))
-for i in range(50):
+# for i in range(50):
+#     trade_stocks[i] = 0
+for i in range(50,100):
     trade_stocks[i] = 0
 
+trade_stocks = np.zeros((100,))
+trade_stocks[8] = 1
+
+
+priceval = []
+avg1val = []
+avg2val = []
 
 def polynomial_moving_average(price_data, window_size, powers):
     """Calculate the polynomial moving average of an array of price data.
@@ -61,7 +72,7 @@ def polynomial_moving_average(price_data, window_size, powers):
 
 
 def getMyPosition(prcSoFar):
-    
+
     global currentPos
 
     # Zero out position on first day just in case it hasn't been initialised to 0
@@ -70,13 +81,13 @@ def getMyPosition(prcSoFar):
         currentPos = np.zeros(num_instruments)
 
     # Only use the last 50 stocks, as we don't trade the first 50
-    prcSoFar = prcSoFar[50:]
+    last50_price_data = prcSoFar[50:]
 
     # Use a weighted average as our theoretical stock value
-    weighted_avg = polynomial_moving_average(prcSoFar, parameters["weighted_average_window_size"], parameters["weighted_average_powers"])
+    weighted_avg = polynomial_moving_average(last50_price_data, parameters["weighted_average_window_size"], parameters["weighted_average_powers"])
 
     # Calculate the edge of our determined theoretical price against the actual current price
-    weighted_edge = (weighted_avg - prcSoFar[:,-1]) / weighted_avg
+    weighted_edge = (weighted_avg - last50_price_data[:,-1]) / weighted_avg
 
     # This array represents our current position in discrete states, where each array value
     # can be -1, 0, 1 representing short, zero and long positions.
@@ -91,8 +102,53 @@ def getMyPosition(prcSoFar):
             max_min_pos[i] = -1      
 
     # Convert the short/zero/long array to a position for the last 50 stocks
-    currentPos[50:] = (10000/prcSoFar[:,-1]) * max_min_pos
+    currentPos[50:] = (10000/last50_price_data[:,-1]) * max_min_pos
     
+
+    def moving_average(price_data, window_size):
+        num_instruments, num_days = price_data.shape
+        if num_days < window_size:
+            return np.mean(price_data, axis=1)
+        else:
+            return np.mean(price_data[:,-window_size:], axis=1)
+
+
+    first50_price_data = prcSoFar[:50]
+    avg1 = polynomial_moving_average(first50_price_data, parameters["moving_avg1"], np.ones(50).T)
+    avg2 = polynomial_moving_average(first50_price_data, parameters["moving_avg2"], np.ones(50).T)
+
+    # avg1 = moving_average(first50_price_data, 13)
+    # avg2 = moving_average(first50_price_data, 48)
+
+    n = 8
+    priceval.append(first50_price_data[n,-1])
+    avg1val.append(avg1[n])
+    avg2val.append(avg2[n])
+
+
+    first50_max_min = 2*(currentPos[:50] > 0) - 1 + 1*(currentPos[:50] == 0)
+
+    # first50_max_min = 2*(avg1 > avg2) - 1
+
+    for i in range(50):
+        if avg1[i] > avg2[i] * 1.0:
+            first50_max_min[i] = 1
+        elif avg2[i] > avg1[i] * 1.0:
+            first50_max_min[i] = -1
+
+    # for i in range(50):
+    #     if first50_max_min[i] 
+    # if first50_max_min[n] > 0 and currentPos[n] < 0:
+    #     print("Sell on day", num_days)
+    # if first50_max_min[n] < 0 and currentPos[n] > 0:
+    #     print("Buy on day", num_days)
+    # print(num_days, avg1[n], avg2[n], first50_max_min[n] > 0)
+
+
+
+    currentPos[:50] = (10000/first50_price_data[:,-1]) * first50_max_min
+
+
     # Zero out stocks which we aren't trading
     currentPos *= trade_stocks
 

@@ -4,7 +4,6 @@ import numpy as np
 import scipy
 from scipy.ndimage import gaussian_filter1d
 import random
-from Astronauts import moving_average
 from eval import loadPrices, calcPL
 
 
@@ -150,7 +149,7 @@ def exp_moving_averages(df, window_size):
 
 
 def momentums(price_data, window_size):
-    
+
     num_instruments, num_days = price_data.shape
     actual_window_size = min(window_size, num_days-1)
     price_diffs = np.zeros((num_instruments, actual_window_size))
@@ -170,16 +169,22 @@ def momentums(price_data, window_size):
 
 
 
-mov_avg_df = moving_averages(percent_df, window_size=10)
+# mov_avg_df = moving_averages(percent_df, window_size=10)
+# plot_df(mov_avg_df, params='-.')
+
+mov_avg_df = moving_averages(percent_df, window_size=13)
 plot_df(mov_avg_df, params='-.')
 
-mov_avg_df = moving_averages(percent_df.multiply(1.005), window_size=10)
+mov_avg_df = moving_averages(percent_df, window_size=48)
 plot_df(mov_avg_df, params='-.')
 
-mov_avg_df = moving_averages(percent_df.multiply(0.995), window_size=10)
-plot_df(mov_avg_df, params='-.')
+# mov_avg_df = moving_averages(percent_df.multiply(1.005), window_size=10)
+# plot_df(mov_avg_df, params='-.')
 
-mov_avg_df = exp_moving_averages(percent_df, window_size=20)
-plot_df(mov_avg_df, params='-.')
+# mov_avg_df = moving_averages(percent_df.multiply(0.995), window_size=10)
+# plot_df(mov_avg_df, params='-.')
+
+# mov_avg_df = exp_moving_averages(percent_df, window_size=20)
+# plot_df(mov_avg_df, params='-.')
 
 plt.show()
