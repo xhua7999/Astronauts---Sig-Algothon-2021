@@ -1,6 +1,6 @@
 import numpy as np
 from eval import loadPrices, calcPL
-from astronauts import parameters, trade_stocks
+from Astronauts import parameters, trade_stocks
 
 
 pricesFile="./prices500.txt"
@@ -25,7 +25,6 @@ print(sum(profits))
 
 print(sum(profits[:50]))
 print(sum(profits[50:]))
-
 
 # eval_function = lambda: calcPL(prcAll)[0]
 # optimiser = Optimiser(parameters, eval_function)

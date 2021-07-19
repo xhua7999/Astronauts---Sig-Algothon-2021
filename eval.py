@@ -2,11 +2,7 @@
 
 import numpy as np
 import pandas as pd
-from astronauts import getMyPosition as getPosition
-
-from astronauts import priceval, avg1val, avg2val
-import matplotlib.pyplot as plt
-
+from Astronauts import getMyPosition as getPosition
 
 # Algorithm testing file. 
 # Quantitative judging will be determined from output of this program.
@@ -86,13 +82,6 @@ if __name__ == '__main__':
     print ("return: %.5lf" % ret)
     print ("annSharpe(PL): %.2lf " % sharpe)
     print ("totDvolume: %.0lf " % dvol)
-
-    # print(priceval)
-    plt.plot(priceval)
-    plt.plot(avg1val)
-    plt.plot(avg2val)
-    plt.show()
-
 
 
 
